@@ -1,4 +1,6 @@
 .DS_Store
 foodtruckrobot.*
 __pycache__
+/venv
+.idea
 

@@ -1,0 +1,17 @@
+<!doctype html>
+<!-- Top -->
+<p>Conversation avec <b>{{ phone_number }}</b></p>
+
+<!-- Messsages -->
+<br>
+{% for message in messages %}
+    {% if message.to == phone_number %}
+        <p>TO</p>
+    {% else %}
+        <p>FROM</p>
+    {% endif %}
+    <p>{{ message.date_sent }}</p><br>
+    <p>{{ message.body }}</p><br>
+{% endfor %}
+
+<!-- Send -->

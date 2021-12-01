@@ -1,5 +1,6 @@
 from flask import Blueprint, session, redirect, request, render_template
 from markupsafe import escape
+from datetime import date
 
 index_page = Blueprint('index_page', __name__, template_folder='templates')
 
@@ -9,4 +10,5 @@ index_page = Blueprint('index_page', __name__, template_folder='templates')
 def index():
     if not 'username' in session:
         return redirect('/login')
-    return render_template('index.html', name=escape(session['username']))
+    return render_template('index.html', name=escape(session['username']),
+                                         date=date.today().strftime("%A %d %B"))

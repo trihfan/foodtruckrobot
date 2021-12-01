@@ -1,23 +1,27 @@
 from flask import Flask
 import sqlite3
+import os
+import locale
+
+loc = locale.getlocale()
+locale.setlocale(locale.LC_ALL, 'fr_FR')
 
 # Pages
 from foodtruckrobot.index_page import index_page
 from foodtruckrobot.login_page import login_page
+from foodtruckrobot.sms_page import sms_page
 
 # Run the app
 foodtruckrobot = Flask(__name__)
-foodtruckrobot.secret_key = b'\x95\x0b\xbd\xf9\xefn\x8a3\xaeR\xf6\xefYtzx'
+foodtruckrobot.secret_key = os.urandom(12)
 foodtruckrobot.register_blueprint(index_page)
 foodtruckrobot.register_blueprint(login_page)
+foodtruckrobot.register_blueprint(sms_page)
 
-# Open the database
+# Create the database
 con = sqlite3.connect('data.db')
 con.execute("CREATE TABLE IF NOT EXISTS orders (date text, content text, user text)")
 con.commit()
-
-# We can also close the connection if we are done with it.
-# Just be sure any changes have been committed or they will be lost.
 con.close()
 
 # Run

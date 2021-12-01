@@ -1,3 +1,15 @@
 <!doctype html>
-<p>Logged in as {{ name }} </p>
+<p>Bienvenue <b>{{ name }}</b> nous sommes le <b>{{ date }}</b></p>
+
+<!-- Available menu -->
+<div class="tab">
+  <button class="tablinks" onclick="openMenu(event, 'Menu_1')">Menu 1</button>
+</div>
+
+<!-- Menu content -->
+<div id="Menu_1" class="tabcontent">
+  <h3>Menu 1</h3>
+  <p>Content</p>
+</div>
+
 <a href="/logout">Logout</a>
