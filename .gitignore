@@ -3,4 +3,5 @@ foodtruckrobot.*
 __pycache__
 /venv
 .idea
+*/data.db
 
