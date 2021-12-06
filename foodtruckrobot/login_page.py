@@ -1,5 +1,4 @@
 from flask import Blueprint, session, redirect, request, render_template
-from markupsafe import escape
 
 login_page = Blueprint('login_page', __name__, template_folder='templates')
 

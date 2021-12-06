@@ -1,45 +1,58 @@
-from flask import Blueprint, session, redirect, request, render_template
+from flask import Blueprint, session, redirect, render_template, request
+from twilio.rest import Client
 from markupsafe import escape
 from datetime import date
-import sqlite3
+from pymongo import MongoClient
+import os
 
 index_page = Blueprint('index_page', __name__, template_folder='templates')
+account_sid = os.environ['TWILIO_ACCOUNT_SID']
+auth_token = os.environ['TWILIO_AUTH_TOKEN']
+twilio_number = os.environ['TWILIO_PHONE_NUMBER']
+mongodb_url = os.environ['MONGODB_URL']
+mongodb_data = os.environ['MONGODB_DATA']
 
 # Index page, if not logged in -> redirect to login page
 # otherwise we will display available menu
-@index_page.route('/', defaults={'foodtruck': None})
-@index_page.route('/<foodtruck>')
-def index(foodtruck):
+@index_page.route('/', defaults={'current_foodtruck': None}, methods=['GET', 'POST'])
+@index_page.route('/<current_foodtruck>', methods=['GET', 'POST'])
+def index(current_foodtruck):
     if not 'username' in session:
         return redirect('/login')
 
-    con = sqlite3.connect('data.db')
+    client = MongoClient(mongodb_url)
+    foodtrucks = client.data.foodtrucks
+
+    # Add order
+    if request.method == 'POST':
+        for key, value in request.form.items():
+            print(key)
+            print(value)
 
     # Number of new messages
-    unread_number = con.execute("SELECT SUM(pending_messages) FROM numbers").fetchone()[0]
+    client = Client(account_sid, auth_token)
+    unread_number = len(client.messages.list(to=twilio_number, date_sent=date.today()))
 
     # Available foodtrucks
-    foodtrucks = []
+    today_foodtrucks = []
     selected_foodtruck = 0
-    id = 0
-    for result in con.execute("SELECT name FROM foodtrucks WHERE day=" + str(date.today().weekday()) + " AND enable = true"):
-        if result[0] == foodtruck:
-            selected_foodtruck = id
-        foodtrucks.append({ "id" : id, "name" : result[0], "selected" : result[0] == foodtruck })
-        id += 1
+    counter = 0
+    for foodtruck in foodtrucks.find({ "day" : date.today().weekday(), "enabled" : True }, { "name" : 1 }):
+        if foodtruck["name"] == current_foodtruck:
+            selected_foodtruck = counter
+        today_foodtrucks.append({ "name" : foodtruck["name"], "selected" : foodtruck["name"] == current_foodtruck })
+        counter += 1
 
-    foodtrucks[selected_foodtruck]["selected"] = True
+    if selected_foodtruck < len(today_foodtrucks):
+        today_foodtrucks[selected_foodtruck]["selected"] = True
 
     # Menus
-    menus = []
-    for result in con.execute("SELECT name, description, value FROM menus WHERE foodtruck = '" + foodtrucks[selected_foodtruck]["name"] + "'"):
-        menus.append({ "name" : result[0], "description" : result[1], "value" : result[2] })
+    menus = {}
+    if selected_foodtruck < len(today_foodtrucks):
+        menus = foodtrucks.find_one({ "name" : today_foodtrucks[selected_foodtruck]["name"] }, { "menus" : 1 })["menus"]
 
-    # Submenus
-
-    con.close()
     return render_template('index.html', name=escape(session['username']),
                                          date=date.today().strftime("%A %d %B"),
                                          unread_number=unread_number,
-                                         foodtrucks=foodtrucks,
+                                         foodtrucks=today_foodtrucks,
                                          menus=menus)

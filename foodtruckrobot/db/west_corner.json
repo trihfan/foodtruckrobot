@@ -1,0 +1,213 @@
+[
+    {
+        "name" : "West Corner",
+        "avatar" : "avatar-west-corner.png",
+        "phone_number" : "0626945671",
+        "day" : 1,
+        "enabled" : true,
+        "menus" :
+        [
+            {
+                "name" : "L'Original",
+                "description" : "Bun artisanal, steak de notre boucher, compotée d'oignons au vinaigre de cidre, cheddar, tomates, pickles aigre-doux, sauce moutarde ketchup (Mounchup)",
+                "price" : 7.9,
+                "subitems" :
+                {
+                    "Accompagnements" :
+                    [
+                        { "name" :  "Frites", "description" : "Miam les frites", "price" :  3 }
+                    ],
+                    "Boissons" :
+                    [
+                        { "name" :  "Coca-cola", "description" : "", "price" :  1 },
+                        { "name" :  "Fanta", "description" : "", "price" :  1 },
+                        { "name" :  "Ice Tea", "description" : "", "price" :  1 },
+                        { "name" :  "Oasis", "description" : "", "price" :  1 },
+                        { "name" :  "Eau", "description" : "", "price" :  1 },
+                        { "name" :  "SanPellegrino", "description" : "", "price" :  1 }
+                    ],
+                    "Desserts" :
+                    [
+                        { "name" :  "Dessert du mois", "description" : "???", "price" :  2.6 }
+                    ]
+                }
+            },
+            {
+                "name" : "Le Bacon Cheese",
+                "description" : "Bun artisanal, steak de notre boucher, compotée d'oignons au vinaigre de cidre, cheddar, poitrine fumée, pickles aigre-doux, salade Iceberg, sauce barbecue",
+                "price" : 7.9,
+                "subitems" :
+                {
+                    "Accompagnements" :
+                    [
+                        { "name" :  "Frites", "description" : "Miam les frites", "price" :  3 }
+                    ],
+                    "Boissons" :
+                    [
+                        { "name" :  "Coca-cola", "description" : "", "price" :  1 },
+                        { "name" :  "Fanta", "description" : "", "price" :  1 },
+                        { "name" :  "Ice Tea", "description" : "", "price" :  1 },
+                        { "name" :  "Oasis", "description" : "", "price" :  1 },
+                        { "name" :  "Eau", "description" : "", "price" :  1 },
+                        { "name" :  "SanPellegrino", "description" : "", "price" :  1 }
+                    ],
+                    "Desserts" :
+                    [
+                        { "name" :  "Dessert du mois", "description" : "???", "price" :  2.6 }
+                    ]
+                }
+            },
+            {
+                "name" : "Le Californien",
+                "description" : "Bun artisanal, steak de notre boucher, compotée d'oignons au vinaigre de cidre, cheddar, tomate, avocat, salade Iceberg, sauce cocktail",
+                "price" : 7.9,
+                "subitems" :
+                {
+                    "Accompagnements" :
+                    [
+                        { "name" :  "Frites", "description" : "Miam les frites", "price" :  3 }
+                    ],
+                    "Boissons" :
+                    [
+                        { "name" :  "Coca-cola", "description" : "", "price" :  1 },
+                        { "name" :  "Fanta", "description" : "", "price" :  1 },
+                        { "name" :  "Ice Tea", "description" : "", "price" :  1 },
+                        { "name" :  "Oasis", "description" : "", "price" :  1 },
+                        { "name" :  "Eau", "description" : "", "price" :  1 },
+                        { "name" :  "SanPellegrino", "description" : "", "price" :  1 }
+                    ],
+                    "Desserts" :
+                    [
+                        { "name" :  "Dessert du mois", "description" : "???", "price" :  2.6 }
+                    ]
+                }
+            },
+            {
+                "name" : "Le Marius",
+                "description" : "Bun artisanal, steak de notre boucher, compotée d'oignons au vinaigre de cidre, cheddar, Aïoli maison, salade Iceberg.",
+                "price" : 7.9,
+                "subitems" :
+                {
+                    "Accompagnements" :
+                    [
+                        { "name" :  "Frites", "description" : "Miam les frites", "price" :  3 }
+                    ],
+                    "Boissons" :
+                    [
+                        { "name" :  "Coca-cola", "description" : "", "price" :  1 },
+                        { "name" :  "Fanta", "description" : "", "price" :  1 },
+                        { "name" :  "Ice Tea", "description" : "", "price" :  1 },
+                        { "name" :  "Oasis", "description" : "", "price" :  1 },
+                        { "name" :  "Eau", "description" : "", "price" :  1 },
+                        { "name" :  "SanPellegrino", "description" : "", "price" :  1 }
+                    ],
+                    "Desserts" :
+                    [
+                        { "name" :  "Dessert du mois", "description" : "???", "price" :  2.6 }
+                    ]
+                }
+            },
+            {
+                "name" : "Le Seguin",
+                "description" : "Bun artisanal, steak de notre boucher, compotée d'oignons au vinaigre de cidre, fromage de chèvre, tomate, chorizo, salade Iceberg, sauce barbecue",
+                "price" : 7.9,
+                "subitems" :
+                {
+                    "Accompagnements" :
+                    [
+                        { "name" :  "Frites", "description" : "Miam les frites", "price" :  3 }
+                    ],
+                    "Boissons" :
+                    [
+                        { "name" :  "Coca-cola", "description" : "", "price" :  1 },
+                        { "name" :  "Fanta", "description" : "", "price" :  1 },
+                        { "name" :  "Ice Tea", "description" : "", "price" :  1 },
+                        { "name" :  "Oasis", "description" : "", "price" :  1 },
+                        { "name" :  "Eau", "description" : "", "price" :  1 },
+                        { "name" :  "SanPellegrino", "description" : "", "price" :  1 }
+                    ],
+                    "Desserts" :
+                    [
+                        { "name" :  "Dessert du mois", "description" : "???", "price" :  2.6 }
+                    ]
+                }
+            },
+            {
+                "name" : "Le Sicilien",
+                "description" : "Bun artisanal, steak de notre boucher, compotée d'oignons au vinaigre de cidre, tomates, mozzarella, salade iceberg, sauce coulis de basilic et sauce cocktail.",
+                "price" : 7.9,
+                "subitems" :
+                {
+                    "Accompagnements" :
+                    [
+                        { "name" :  "Frites", "description" : "Miam les frites", "price" :  3 }
+                    ],
+                    "Boissons" :
+                    [
+                        { "name" :  "Coca-cola", "description" : "", "price" :  1 },
+                        { "name" :  "Fanta", "description" : "", "price" :  1 },
+                        { "name" :  "Ice Tea", "description" : "", "price" :  1 },
+                        { "name" :  "Oasis", "description" : "", "price" :  1 },
+                        { "name" :  "Eau", "description" : "", "price" :  1 },
+                        { "name" :  "SanPellegrino", "description" : "", "price" :  1 }
+                    ],
+                    "Desserts" :
+                    [
+                        { "name" :  "Dessert du mois", "description" : "???", "price" :  2.6 }
+                    ]
+                }
+            },
+            {
+                "name" : "Le Veggy",
+                "description" : "Bun artisanal, galette de frites au cheddar, compotée d'oignons au vinaigre de cidre, tomate, avocat, salade Iceberg.",
+                "price" : 7.9,
+                "subitems" :
+                {
+                    "Accompagnements" :
+                    [
+                        { "name" :  "Frites", "description" : "Miam les frites", "price" :  3 }
+                    ],
+                    "Boissons" :
+                    [
+                        { "name" :  "Coca-cola", "description" : "", "price" :  1 },
+                        { "name" :  "Fanta", "description" : "", "price" :  1 },
+                        { "name" :  "Ice Tea", "description" : "", "price" :  1 },
+                        { "name" :  "Oasis", "description" : "", "price" :  1 },
+                        { "name" :  "Eau", "description" : "", "price" :  1 },
+                        { "name" :  "SanPellegrino", "description" : "", "price" :  1 }
+                    ],
+                    "Desserts" :
+                    [
+                        { "name" :  "Dessert du mois", "description" : "???", "price" :  2.6 }
+                    ]
+                }
+            },
+            {
+                "name" : "Burger du moment",
+                ",description" : "Délicieux burger de l'hiver évoquant la montagne et ses plats typiques",
+                "price" : 7.9,
+                "subitems" :
+                {
+                    "Accompagnements" :
+                    [
+                        { "name" :  "Frites", "description" : "Miam les frites", "price" :  3 }
+                    ],
+                    "Boissons" :
+                    [
+                        { "name" :  "Coca-cola", "description" : "", "price" :  1 },
+                        { "name" :  "Fanta", "description" : "", "price" :  1 },
+                        { "name" :  "Ice Tea", "description" : "", "price" :  1 },
+                        { "name" :  "Oasis", "description" : "", "price" :  1 },
+                        { "name" :  "Eau", "description" : "", "price" :  1 },
+                        { "name" :  "SanPellegrino", "description" : "", "price" :  1 }
+                    ],
+                    "Desserts" :
+                    [
+                        { "name" :  "Dessert du mois", "description" : "???", "price" :  2.6 }
+                    ]
+                }
+            }
+        ]
+    }
+]
+

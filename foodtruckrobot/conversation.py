@@ -1,26 +1,22 @@
 from flask import Blueprint, request, render_template
 from twilio.rest import Client
 from datetime import date
+from pymongo import MongoClient
 import os
-import sqlite3
 
-sms_page = Blueprint('conversation', __name__, template_folder='templates')
+conversation_page = Blueprint('conversation', __name__, template_folder='templates')
 account_sid = os.environ['TWILIO_ACCOUNT_SID']
 auth_token = os.environ['TWILIO_AUTH_TOKEN']
 twilio_number = os.environ['TWILIO_PHONE_NUMBER']
 
 # On reply received
-@sms_page.route('/receive')
+@conversation_page.route('/receive')
 def receive():
-    con = sqlite3.connect('data.db')
-    #con.execute("UPDATE numbers SET pending_messages = 0 WHERE number = '" + numbers[0]["number"] + "'")
-    con.commit()
-    con.close()
     return ""
 
 # Open conversation page
-@sms_page.route('/conversation', defaults={'phone_number': None}, methods=['GET', 'POST'])
-@sms_page.route('/conversation/<phone_number>', methods=['GET', 'POST'])
+@conversation_page.route('/conversation', defaults={'phone_number': None}, methods=['GET', 'POST'])
+@conversation_page.route('/conversation/<phone_number>', methods=['GET', 'POST'])
 def conversation(phone_number):
     if request.method == 'POST' and request.form['message']:
         # Connect to twilio
@@ -38,28 +34,31 @@ def conversation(phone_number):
     return render_template('conversation.html', numbers=numbers, messages=messages, current_number=current_number)
 
 def get_number_list(phone_number):
-    # list numbers from db
-    con = sqlite3.connect('data.db')
+    # List
     top_list = []
     bottom_list = []
-    for number in con.execute("SELECT * FROM numbers"):
-        current = {"name": number[0],
-                   "avatar": number[1],
-                   "number": number[2],
-                   "new_messages": number[3]}
-        if number[2] == phone_number:
+    client = Client(account_sid, auth_token)
+
+    # Connect mongodb
+    mongodb = MongoClient("mongodb://localhost/")
+    foodtrucks = mongodb.data.foodtrucks
+
+    # Iterate all foodtrucks
+    for foodtruck in foodtrucks.find({}, { "name" : 1, "avatar" : 1, "phone_number" : 1 }):
+        from_number = "+33" + foodtruck["phone_number"][1:]
+        today_message_count = len(client.messages.list(to=twilio_number, from_=from_number, date_sent=date.today()));
+        current = {"name": foodtruck["name"],
+                   "avatar": foodtruck["avatar"],
+                   "number": foodtruck["phone_number"],
+                   "new_messages": today_message_count}
+        if foodtruck["phone_number"] == phone_number:
             top_list.insert(0, current)
-        elif number[3] > 0:
+        elif today_message_count > 0:
             top_list.append(current)
         else:
             bottom_list.append(current)
     numbers = top_list + bottom_list
 
-    # set pending message to 0 for current number
-    numbers[0]["new_messages"] = 0;
-    con.execute("UPDATE numbers SET pending_messages = 0 WHERE number = '" + numbers[0]["number"] + "'")
-    con.commit()
-    con.close()
     return numbers
 
 def get_message_list(phone_number, name, avatar):

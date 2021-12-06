@@ -1,36 +1,31 @@
-import sqlite3
+from pymongo import MongoClient
+import os
+import json
 
-def create(name):
-    con = sqlite3.connect(name)
+mongodb_url = os.environ['MONGODB_URL']
+mongodb_data = os.environ['MONGODB_DATA']
 
-    # Orders
-    con.execute("CREATE TABLE IF NOT EXISTS orders (date text, content text, user text)")
+def init():
+    print("init db")
 
-    # Numbers
-    con.execute('DROP TABLE IF EXISTS numbers')
-    con.execute("CREATE TABLE numbers (name text, avatar text, number text, pending_messages integer)")
-    con.execute("INSERT INTO numbers VALUES ('Thibault', 'avatar-thibault.png', '0626945671', 8)")
+    # Load all files
+    for filename in os.listdir(mongodb_data):
+        if filename.endswith(".json"):
+            # Loading or Opening the json file
+            print("Loading : " + filename)
+            with open(mongodb_data + "/" + filename) as file:
+                file_data = json.load(file)
+                add_foodtruck(file_data)
 
-    # Foodtrucks
-    con.execute('DROP TABLE IF EXISTS foodtrucks')
-    con.execute("CREATE TABLE foodtrucks (name text, day integer, enable boolean)")
-    con.execute("INSERT INTO foodtrucks VALUES ('West Corner', 2, true)")
-    con.execute("INSERT INTO foodtrucks VALUES ('Tofu', 2, true)")
+def add_foodtruck(foodtruck):
+    client = MongoClient(mongodb_url)
+    foodtrucks = client.data.foodtrucks
 
-    con.execute("INSERT INTO foodtrucks VALUES ('Test 1', 0, true)")
-    con.execute("INSERT INTO foodtrucks VALUES ('Test 2', 0, true)")
-
-    # Menus
-    con.execute('DROP TABLE IF EXISTS menus')
-    con.execute("CREATE TABLE menus (foodtruck text, name text, description text, value real)")
-
-    con.execute("INSERT INTO menus VALUES ('West Corner', 'Le californien', 'aaaaaa', 10)")
-    con.execute("INSERT INTO menus VALUES ('West Corner', 'Lautre', 'aaa', 9)")
-
-    con.execute("INSERT INTO menus VALUES ('Test 1', 'Le californien', 'aaaaaa', 10)")
-    con.execute("INSERT INTO menus VALUES ('Test 1', 'Lautre', 'aaa', 9)")
-
-    # Menus parameters
-
-    con.commit()
-    con.close()
+    if isinstance(foodtruck, list):
+        for item in foodtruck:
+            add_foodtruck(item)
+    else:
+        old = foodtrucks.find_one({"name": foodtruck["name"]})
+        enabled = foodtruck["enabled"] if not old else old["enabled"]
+        foodtrucks.replace_one({"name": foodtruck["name"]}, foodtruck, upsert=True)
+        foodtrucks.update_one({"name": foodtruck["name"]}, { "$set": { "enabled": enabled }})
