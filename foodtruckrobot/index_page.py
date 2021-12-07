@@ -1,9 +1,10 @@
 from flask import Blueprint, session, redirect, render_template, request
 from twilio.rest import Client
 from markupsafe import escape
-from datetime import date
+from datetime import date, datetime, time
 from pymongo import MongoClient
 import os
+import json
 
 index_page = Blueprint('index_page', __name__, template_folder='templates')
 account_sid = os.environ['TWILIO_ACCOUNT_SID']
@@ -20,14 +21,16 @@ def index(current_foodtruck):
     if not 'username' in session:
         return redirect('/login')
 
-    client = MongoClient(mongodb_url)
-    foodtrucks = client.data.foodtrucks
+    mongodb = MongoClient(mongodb_url)
+    foodtrucks = mongodb.data.foodtrucks
+    orders = mongodb.data.orders
 
     # Add order
     if request.method == 'POST':
-        for key, value in request.form.items():
-            print(key)
-            print(value)
+        place_order(request.form)
+
+    # Number of orders pending for user
+    orders_count = orders.count_documents({ "user" : escape(session['username']), "date" : { '$gte': datetime.combine(date.today(), time()) }})
 
     # Number of new messages
     client = Client(account_sid, auth_token)
@@ -53,6 +56,26 @@ def index(current_foodtruck):
 
     return render_template('index.html', name=escape(session['username']),
                                          date=date.today().strftime("%A %d %B"),
+                                         orders_count=orders_count,
                                          unread_number=unread_number,
                                          foodtrucks=today_foodtrucks,
                                          menus=menus)
+
+def place_order(form):
+    mongodb = MongoClient(mongodb_url)
+
+    # Create order
+    order = { "user" : escape(session['username']), "date" : datetime.today() }
+    order["subitems"] = []
+
+    # Fille data
+    for key, value in form.items():
+        if key.startswith("subitem"):
+            subitem = json.loads(value)
+            if subitem["name"] != "None":
+                order["subitems"].append(subitem)
+        else:
+            order[key] = value
+
+    orders = mongodb.data.orders
+    orders.insert_one(order)
