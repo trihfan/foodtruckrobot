@@ -14,7 +14,7 @@ mongodb_url = os.environ['MONGODB_URL']
 mongodb_data = os.environ['MONGODB_DATA']
 
 # Index page, if not logged in -> redirect to login page
-# otherwise we will display available menu
+# otherwise we will display available menus
 @index_page.route('/', defaults={'current_foodtruck': None}, methods=['GET', 'POST'])
 @index_page.route('/<current_foodtruck>', methods=['GET', 'POST'])
 def index(current_foodtruck):
@@ -29,12 +29,18 @@ def index(current_foodtruck):
     if request.method == 'POST':
         place_order(request.form)
 
-    # Number of orders pending for user
-    orders_count = orders.count_documents({ "user" : escape(session['username']), "date" : { '$gte': datetime.combine(date.today(), time()) }})
-
     # Number of new messages
     client = Client(account_sid, auth_token)
     unread_number = len(client.messages.list(to=twilio_number, date_sent=date.today()))
+
+    # After 11h, disable order
+    if datetime.today() > datetime.combine(date.today(), time(10, 55)):
+        return render_template('too_late.html', name=escape(session['username']),
+                               date=date.today().strftime("%A %d %B"),
+                               unread_number=unread_number)
+
+    # Number of orders pending for user
+    orders_count = orders.count_documents({"user": escape(session['username']), "date": {'$gte': datetime.combine(date.today(), time())}})
 
     # Available foodtrucks
     today_foodtrucks = []
@@ -54,7 +60,7 @@ def index(current_foodtruck):
     if selected_foodtruck < len(today_foodtrucks):
         menus = foodtrucks.find_one({ "name" : today_foodtrucks[selected_foodtruck]["name"] }, { "menus" : 1 })["menus"]
 
-    return render_template('index.html', name=escape(session['username']),
+    return render_template('menus.html', name=escape(session['username']),
                                          date=date.today().strftime("%A %d %B"),
                                          orders_count=orders_count,
                                          unread_number=unread_number,

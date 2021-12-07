@@ -1,6 +1,6 @@
 setuptools~=57.0.0
 Flask~=2.0.2
-foodtruckrobot~=0.0.0
 twilio~=7.3.1
 MarkupSafe~=2.0.1
 pymongo~=4.0
+Flask-Session~=0.4.0

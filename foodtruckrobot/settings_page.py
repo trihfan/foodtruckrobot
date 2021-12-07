@@ -1,13 +1,16 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, session, request, render_template
 from requests.auth import HTTPBasicAuth
+from markupsafe import escape
 from twilio.rest import Client
 from pymongo import MongoClient
+from datetime import date
 import requests
 import os
 
 settings_page = Blueprint('settings_page', __name__, template_folder='templates')
 account_sid = os.environ['TWILIO_ACCOUNT_SID']
 auth_token = os.environ['TWILIO_AUTH_TOKEN']
+twilio_number = os.environ['TWILIO_PHONE_NUMBER']
 mongodb_url = os.environ['MONGODB_URL']
 mongodb_data = os.environ['MONGODB_DATA']
 
@@ -28,4 +31,11 @@ def index():
     records = client.usage.records.list(category="totalprice")
     price_data = {"total_coast": float(records[0].price), "balance": float(balance)}
 
-    return render_template('settings.html', foodtrucks=foodtrucks.find({}, { "name": 1, "enabled": 1 }), price_data=price_data)
+    # Number of new messages
+    client = Client(account_sid, auth_token)
+    unread_number = len(client.messages.list(to=twilio_number, date_sent=date.today()))
+
+    return render_template('settings.html', foodtrucks=foodtrucks.find({}, { "name": 1, "enabled": 1 }),
+                                            price_data=price_data,
+                                            name=escape(session['username']),
+                                            date=date.today().strftime("%A %d %B"))

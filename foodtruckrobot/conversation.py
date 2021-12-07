@@ -1,7 +1,8 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, session
 from twilio.rest import Client
 from datetime import date
 from pymongo import MongoClient
+from markupsafe import escape
 import os
 
 conversation_page = Blueprint('conversation', __name__, template_folder='templates')
@@ -31,7 +32,11 @@ def conversation(phone_number):
     current_number = "+33" + numbers[0]["number"][1:]
     messages = get_message_list(current_number, numbers[0]["name"], numbers[0]["avatar"])
 
-    return render_template('conversation.html', numbers=numbers, messages=messages, current_number=current_number)
+    return render_template('conversation.html', numbers=numbers,
+                                                messages=messages,
+                                                current_number=current_number,
+                                                name=escape(session['username']),
+                                                date = date.today().strftime("%A %d %B"))
 
 def get_number_list(phone_number):
     # List

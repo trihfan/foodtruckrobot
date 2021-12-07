@@ -1,0 +1,124 @@
+{% extends 'layouts/layout_logged.html' %}
+{% block content %}
+<!-- Tab list -->
+<ul class="nav nav-tabs">
+  {% for foodtruck in foodtrucks %}
+    <li class="nav-item">
+      <a href="/{{ foodtruck.name }}" class="nav-link {% if foodtruck.selected %}active{% endif %}" aria-current="page">{{ foodtruck.name }}</a>
+    </li>
+  {% endfor %}
+</ul>
+
+<!-- Menu -->
+<ol class="list-group">
+  {% for menu in menus %}
+    <a href="#" class="list-group-item d-flex justify-content-between align-items-start" data-bs-toggle="modal" data-bs-target="#order-{{ loop.index }}">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">{{ menu.name }}</div>
+        <span class="text-muted">{{ menu.description }}</span>
+      </div>
+      <span class="badge bg-primary rounded-pill">{{ menu.price }}€</span>
+    </a>
+  {% endfor %}
+</ol>
+
+<!-- Submenu -->
+{% for menu in menus %}
+  {% set menu_index = loop.index %}
+
+  <!-- Order modal, one by menu -->
+  <div class="modal fade" id="order-{{ menu_index }}" tabindex="-1" aria-labelledby="order-{{ menu_index }}-label" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form method="post">
+
+          <!-- Data -->
+          <input id="order-{{ menu_index }}-name" name="menu" type="hidden" value="{{ menu.name }}">
+          <input id="order-{{ menu_index }}-price" name="menu_price" type="hidden" value="{{ menu.price }}">
+          {% for foodtruck in foodtrucks %}
+            {% if foodtruck.selected %}
+              <input id="foodtruck" name="foodtruck" type="hidden" value="{{ foodtruck.name }}">
+            {% endif %}
+          {% endfor %}
+
+          <!-- Order modal title -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="order-{{ menu_index }}-label">{{ menu.name }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <!-- Order modal body, contains each category of subitem and the subitems -->
+          <div class="modal-body">
+            <div class="accordion accordion-flush">
+
+              <!-- Categories -->
+              {% for category, items in menu.subitems.items() %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="order-{{ menu_index }}-{{ loop.index + 1 }}-flush">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#order-{{ menu_index }}-{{ loop.index + 1 }}-flush-2" aria-expanded="false" aria-controls="order-{{ menu_index }}-{{ loop.index + 1 }}-flush-2">
+                      {{ category }}
+                    </button>
+                  </h2>
+
+                  <!-- None -->
+                  <div id="order-{{ menu_index }}-{{ loop.index + 1 }}-flush-2" class="accordion-collapse collapse" aria-labelledby="order-{{ menu_index }}-{{ loop.index + 1 }}-flush">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="subitem-{{ category }}" id="order-{{ menu_index }}-{{ category }}-0" value='{ "category" : "{{ category }}", "name" : "None", "price" : 0 }' checked>
+                        <label class="form-check-label" for="order-{{ menu_index }}-{{ category }}-0">
+                          Non merci!
+                        </label>
+                      </div>
+
+                      <!-- Category items -->
+                      {% for item in items %}
+                        <div class="form-check">
+                          <div class="row">
+
+                            <!-- Name + radio -->
+                            <div class="col-3">
+                              <input class="form-check-input " type="radio" name="subitem-{{ category }}" id="order-{{ menu_index }}-{{ category }}-{{ loop.index }}" value='{ "category" : "{{ category }}", "name" : "{{ item.name }}", "price" : {{ item.price }} }'>
+                              <label class="form-check-label" for="order-{{ menu_index }}-{{ category }}-{{ loop.index }}">
+                                {{ item.name }}
+                              </label>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-6">
+                              <label class="form-check-label text-muted" for="order-{{ menu_index }}-{{ category }}-{{ loop.index }}">
+                                {{ item.description }}
+                              </label>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="col-3 text-end">
+                              <span class="badge bg-secondary">{{ item.price }}€</span>
+                            </div>
+                          </div>
+                        </div>
+                      {% endfor %}
+
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+
+            </div>
+            <hr/>
+
+            <!-- Total -->
+            <h5><div class="text-end"><span class="badge bg-secondary">Total: {{ menu.price }}€</span></div></h5>
+          </div>
+
+          <!-- Buttons !-->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            <button type="submit" class="btn btn-primary" role="button">Commander</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+{% endblock %}
+

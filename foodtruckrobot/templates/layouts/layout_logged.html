@@ -1,0 +1,28 @@
+{% extends 'layouts/layout_base.html' %}
+{% block navbar %}
+<!-- Nav bar -->
+<div class="container-fluid">
+    <div class="row">
+      <div class="col-4 text-start mt-1">
+        <span class="badge bg-secondary">{{ name }}</span>
+        <span class="badge bg-secondary">{{ date }}</span>
+        {% if orders_count is defined and orders_count > 0 %}
+          <span class="badge bg-danger">{{ orders_count }} commande{% if orders_count > 1 %}s{% endif %} en attente</span>
+        {% endif %}
+      </div>
+
+      <div class="col-4 text-center">
+        <img src="{{url_for('static', filename='image/banner.jpg')}}" class="img-thumbnail" alt="Foodtruckrobot">
+      </div>
+
+      <div class="col-4 text-end mt-1">
+        <a href="/conversation" type="button" class="btn btn-primary">
+          Messages{% if unread_number is defined and unread_number > 0 %} <span class="badge bg-secondary">{{ unread_number }}</span>{% endif %}
+        </a>
+        <a href="/settings" type="button" class="btn btn-secondary text-middle"><i class="bi bi-gear-fill bi-align-middle" style="font-size: 1.5rem;"></i></a>
+        <a href="/logout" type="button" class="btn btn-danger">Logout</a>
+      </div>
+    </div>
+</div>
+{% endblock %}
+
