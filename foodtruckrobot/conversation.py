@@ -51,11 +51,20 @@ def get_number_list(phone_number):
     # Iterate all foodtrucks
     for foodtruck in foodtrucks.find({}, { "name" : 1, "avatar" : 1, "phone_number" : 1 }):
         from_number = "+33" + foodtruck["phone_number"][1:]
-        today_message_count = len(client.messages.list(to=twilio_number, from_=from_number, date_sent=date.today()));
+        today_message_count = len(client.messages.list(to=twilio_number, from_=from_number, date_sent=date.today()))
         current = {"name": foodtruck["name"],
                    "avatar": foodtruck["avatar"],
                    "number": foodtruck["phone_number"],
-                   "new_messages": today_message_count}
+                   "new_messages": today_message_count,
+                   "last_message" : "" }
+
+        last_message = client.messages.list(from_=from_number, limit=1)
+        if len(last_message) == 1:
+            current["last_message"] = last_message[0].body
+            if len(current["last_message"]) > 30:
+                current["last_message"] = current["last_message"][0:30] + "..."
+
+
         if foodtruck["phone_number"] == phone_number:
             top_list.insert(0, current)
         elif today_message_count > 0:
