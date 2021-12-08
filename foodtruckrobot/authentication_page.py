@@ -13,8 +13,6 @@ def index():
 
 @authentication_page.route("/oauth/login")
 def login():
-    # Technically we could use empty list [] as scopes to do just sign in,
-    # here we choose to also collect end user consent upfront
     session["flow"] = _build_auth_code_flow(scopes=app_config.SCOPE)
     return render_template("oauth/login.html", auth_url=session["flow"]["auth_uri"], version=msal.__version__)
 
@@ -37,7 +35,7 @@ def logout():
     session.clear()  # Wipe out user and its token cache from session
     return redirect(  # Also logout from your tenant's web session
         app_config.AUTHORITY + "/oauth2/v2.0/logout" +
-        "?post_logout_redirect_uri=" + url_for("index", _external=True))
+        "?post_logout_redirect_uri=" + url_for("authentication_page.index", _external=True))
 
 @authentication_page.route("/oauth/graphcall")
 def graphcall():

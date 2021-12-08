@@ -34,10 +34,16 @@ def index(current_foodtruck):
     unread_number = len(client.messages.list(to=twilio_number, date_sent=date.today()))
 
     # After 11h, disable order
-    if datetime.today() > datetime.combine(date.today(), time(10, 55)):
+    if datetime.today() < datetime.combine(date.today(), time(10, 55)):
+        # Get today orders
+        orders = list(orders.find({ "date": {'$gte': datetime.combine(date.today(), time())} }))
+        for order in orders:
+            order["date"] = order["date"] .strftime("%H:%S")
+
         return render_template('too_late.html', name=escape(session['username']),
                                date=date.today().strftime("%A %d %B"),
-                               unread_number=unread_number)
+                               unread_number=unread_number,
+                               orders=orders)
 
     # Number of orders pending for user
     orders_count = orders.count_documents({"user": escape(session['username']), "date": {'$gte': datetime.combine(date.today(), time())}})
@@ -46,7 +52,7 @@ def index(current_foodtruck):
     today_foodtrucks = []
     selected_foodtruck = 0
     counter = 0
-    for foodtruck in foodtrucks.find({ "day" : date.today().weekday(), "enabled" : True }, { "name" : 1 }):
+    for foodtruck in foodtrucks.find({ "enabled" : True }, { "name" : 1 }):
         if foodtruck["name"] == current_foodtruck:
             selected_foodtruck = counter
         today_foodtrucks.append({ "name" : foodtruck["name"], "selected" : foodtruck["name"] == current_foodtruck })

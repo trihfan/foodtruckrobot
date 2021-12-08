@@ -1,0 +1,3 @@
+Bonjour, serait-il possible de passer la commande suivante pour ce midi au nom de Sophia:
+{% for order in orders %}un {{ order.menu }}{% for subitem in order.subitems %}, {{ subitem.name }}{% endfor %}
+{% endfor %}
