@@ -1,8 +1,10 @@
-from flask import Blueprint, session, redirect, render_template, request
+from flask import Blueprint, session, redirect, render_template, request, url_for
 from twilio.rest import Client
 from markupsafe import escape
 from datetime import date, datetime, time
 from pymongo import MongoClient
+from authentication import _build_auth_code_flow
+import app_config
 import os
 import json
 
@@ -19,7 +21,8 @@ mongodb_data = os.environ['MONGODB_DATA']
 @index_page.route('/<current_foodtruck>', methods=['GET', 'POST'])
 def index(current_foodtruck):
     if not 'username' in session:
-        return redirect('/login')
+        session["flow"] = _build_auth_code_flow(scopes=app_config.SCOPE)
+        return redirect(session["flow"]["auth_uri"])
 
     mongodb = MongoClient(mongodb_url)
     foodtrucks = mongodb.data.foodtrucks
@@ -34,7 +37,7 @@ def index(current_foodtruck):
     unread_number = len(client.messages.list(to=twilio_number, date_sent=date.today()))
 
     # After 11h, disable order
-    if datetime.today() < datetime.combine(date.today(), time(10, 55)):
+    if datetime.today() > datetime.combine(date.today(), time(10, 55)):
         # Get today orders
         orders = list(orders.find({ "date": {'$gte': datetime.combine(date.today(), time())} }))
         for order in orders:
@@ -52,7 +55,7 @@ def index(current_foodtruck):
     today_foodtrucks = []
     selected_foodtruck = 0
     counter = 0
-    for foodtruck in foodtrucks.find({ "enabled" : True }, { "name" : 1 }):
+    for foodtruck in foodtrucks.find({ "day" : date.today().day, "enabled" : True }, { "name" : 1 }):
         if foodtruck["name"] == current_foodtruck:
             selected_foodtruck = counter
         today_foodtrucks.append({ "name" : foodtruck["name"], "selected" : foodtruck["name"] == current_foodtruck })
