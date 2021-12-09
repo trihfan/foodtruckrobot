@@ -3,27 +3,27 @@ from twilio.rest import Client
 from datetime import date
 from pymongo import MongoClient
 from markupsafe import escape
-import os
+from foodtruckrobot.auth.authentication import is_authenticated
+from foodtruckrobot.app_config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
 
-conversation_page = Blueprint('conversation', __name__, template_folder='templates')
-account_sid = os.environ['TWILIO_ACCOUNT_SID']
-auth_token = os.environ['TWILIO_AUTH_TOKEN']
-twilio_number = os.environ['TWILIO_PHONE_NUMBER']
+conversations_pages = Blueprint('conversations_pages', __name__, template_folder='templates')
 
 # On reply received
-@conversation_page.route('/receive')
+@conversations_pages.route('/receive')
 def receive():
     return ""
 
 # Open conversation page
-@conversation_page.route('/conversation', defaults={'phone_number': None}, methods=['GET', 'POST'])
-@conversation_page.route('/conversation/<phone_number>', methods=['GET', 'POST'])
-def conversation(phone_number):
+@conversations_pages.route('/conversations', defaults={'phone_number': None}, methods=['GET', 'POST'])
+@conversations_pages.route('/conversations/<phone_number>', methods=['GET', 'POST'])
+@is_authenticated
+def conversations(phone_number):
     if request.method == 'POST' and request.form['message']:
         # Connect to twilio
-        Client(account_sid, auth_token).messages.create(body=request.form['message'],
-                                                        from_=twilio_number,
-                                                        to=phone_number)
+        Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)\
+            .messages.create(body=request.form['message'],
+                             from_=TWILIO_PHONE_NUMBER,
+                             to=phone_number)
 
     # Load numbers
     numbers = get_number_list(phone_number)
@@ -42,7 +42,7 @@ def get_number_list(phone_number):
     # List
     top_list = []
     bottom_list = []
-    client = Client(account_sid, auth_token)
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
     # Connect mongodb
     mongodb = MongoClient("mongodb://localhost/")
@@ -51,7 +51,9 @@ def get_number_list(phone_number):
     # Iterate all foodtrucks
     for foodtruck in foodtrucks.find({}, { "name" : 1, "avatar" : 1, "phone_number" : 1 }):
         from_number = "+33" + foodtruck["phone_number"][1:]
-        today_message_count = len(client.messages.list(to=twilio_number, from_=from_number, date_sent=date.today()))
+        today_message_count = len(client.messages.list(to=TWILIO_PHONE_NUMBER,
+                                                       from_=from_number,
+                                                       date_sent=date.today()))
         current = {"name": foodtruck["name"],
                    "avatar": foodtruck["avatar"],
                    "number": foodtruck["phone_number"],
@@ -77,7 +79,7 @@ def get_number_list(phone_number):
 
 def get_message_list(phone_number, name, avatar):
     # retrieve messages from twilio
-    client = Client(account_sid, auth_token)
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
     messages_from = client.messages.list(from_=phone_number, limit=20)
     messages_to = client.messages.list(to=phone_number, limit=20)
     messages = messages_from + messages_to

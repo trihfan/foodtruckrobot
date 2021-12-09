@@ -4,19 +4,16 @@ from markupsafe import escape
 from twilio.rest import Client
 from pymongo import MongoClient
 from datetime import date
+from foodtruckrobot.auth.authentication import is_authenticated
 import requests
-import os
+from foodtruckrobot.app_config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER, MONGODB_URL
 
-settings_page = Blueprint('settings_page', __name__, template_folder='templates')
-account_sid = os.environ['TWILIO_ACCOUNT_SID']
-auth_token = os.environ['TWILIO_AUTH_TOKEN']
-twilio_number = os.environ['TWILIO_PHONE_NUMBER']
-mongodb_url = os.environ['MONGODB_URL']
-mongodb_data = os.environ['MONGODB_DATA']
+settings_pages = Blueprint('settings_pages', __name__, template_folder='templates')
 
-@settings_page.route('/settings', methods=['GET', 'POST'])
-def index():
-    client = MongoClient(mongodb_url)
+@settings_pages.route('/settings', methods=['GET', 'POST'])
+@is_authenticated
+def settings():
+    client = MongoClient(MONGODB_URL)
     foodtrucks = client.data.foodtrucks
 
     # Update values
@@ -25,17 +22,17 @@ def index():
             foodtrucks.update_one({"name": foodtruck["name"]}, {"$set": {"enabled": True if foodtruck["name"] in request.form else False}})
 
     # Coast data
-    balance = requests.get('https://api.twilio.com/2010-04-01/Accounts/' + os.environ['TWILIO_ACCOUNT_SID'] + '/Balance.json',
-                 auth=HTTPBasicAuth(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])).json()["balance"]
-    client = Client(account_sid, auth_token)
+    balance = requests.get('https://api.twilio.com/2010-04-01/Accounts/' + TWILIO_ACCOUNT_SID + '/Balance.json',
+                 auth=HTTPBasicAuth(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)).json()["balance"]
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
     records = client.usage.records.list(category="totalprice")
     price_data = {"total_coast": float(records[0].price), "balance": float(balance)}
 
     # Number of new messages
-    client = Client(account_sid, auth_token)
-    unread_number = len(client.messages.list(to=twilio_number, date_sent=date.today()))
+    unread_number = len(client.messages.list(to=TWILIO_PHONE_NUMBER, date_sent=date.today()))
 
     return render_template('settings.html', foodtrucks=foodtrucks.find({}, { "name": 1, "enabled": 1 }),
                                             price_data=price_data,
                                             name=escape(session['username']),
-                                            date=date.today().strftime("%A %d %B"))
+                                            date=date.today().strftime("%A %d %B"),
+                                            unread_number=unread_number)

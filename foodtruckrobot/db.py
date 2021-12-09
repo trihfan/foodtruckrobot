@@ -1,24 +1,20 @@
 from pymongo import MongoClient
 import os
 import json
-
-mongodb_url = os.environ['MONGODB_URL']
-mongodb_data = os.environ['MONGODB_DATA']
+from app_config import MONGODB_DATA, MONGODB_URL
 
 def init():
-    print("init db")
-
     # Load all files
-    for filename in os.listdir(mongodb_data):
+    for filename in os.listdir(MONGODB_DATA):
         if filename.endswith(".json"):
             # Loading or Opening the json file
             print("Loading : " + filename)
-            with open(mongodb_data + "/" + filename) as file:
+            with open(MONGODB_DATA + "/" + filename) as file:
                 file_data = json.load(file)
                 add_foodtruck(file_data)
 
 def add_foodtruck(foodtruck):
-    client = MongoClient(mongodb_url)
+    client = MongoClient(MONGODB_URL)
     foodtrucks = client.data.foodtrucks
 
     if isinstance(foodtruck, list):

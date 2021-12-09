@@ -1,5 +1,23 @@
+from enum import Enum
 import os
 
+# Auth
+class AuthType(Enum):
+    INTERNAL = 1
+    AZURE = 2
+
+AUTH_TYPE = AuthType.INTERNAL
+
+# Twilio
+TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
+TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
+TWILIO_PHONE_NUMBER = os.environ['TWILIO_PHONE_NUMBER']
+
+# Database
+MONGODB_URL = os.environ['MONGODB_URL']
+MONGODB_DATA = os.environ['MONGODB_DATA']
+
+# Azure oauth
 CLIENT_ID = os.environ['CLIENT_ID'] # Application (client) ID of app registration
 CLIENT_SECRET = os.environ['CLIENT_SECRET']
 

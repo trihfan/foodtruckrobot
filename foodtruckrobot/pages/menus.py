@@ -3,28 +3,19 @@ from twilio.rest import Client
 from markupsafe import escape
 from datetime import date, datetime, time
 from pymongo import MongoClient
-from authentication import _build_auth_code_flow
-import app_config
-import os
+from foodtruckrobot.auth.authentication import is_authenticated
+from foodtruckrobot.app_config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER, MONGODB_URL
 import json
 
-index_page = Blueprint('index_page', __name__, template_folder='templates')
-account_sid = os.environ['TWILIO_ACCOUNT_SID']
-auth_token = os.environ['TWILIO_AUTH_TOKEN']
-twilio_number = os.environ['TWILIO_PHONE_NUMBER']
-mongodb_url = os.environ['MONGODB_URL']
-mongodb_data = os.environ['MONGODB_DATA']
+menus_pages = Blueprint('menus_pages', __name__, template_folder='templates')
 
 # Index page, if not logged in -> redirect to login page
 # otherwise we will display available menus
-@index_page.route('/', defaults={'current_foodtruck': None}, methods=['GET', 'POST'])
-@index_page.route('/<current_foodtruck>', methods=['GET', 'POST'])
-def index(current_foodtruck):
-    if not 'username' in session:
-        session["flow"] = _build_auth_code_flow(scopes=app_config.SCOPE)
-        return redirect(session["flow"]["auth_uri"])
-
-    mongodb = MongoClient(mongodb_url)
+@menus_pages.route('/', defaults={'current_foodtruck': None}, methods=['GET', 'POST'])
+@menus_pages.route('/<current_foodtruck>', methods=['GET', 'POST'])
+@is_authenticated
+def menus(current_foodtruck):
+    mongodb = MongoClient(MONGODB_URL)
     foodtrucks = mongodb.data.foodtrucks
     orders = mongodb.data.orders
 
@@ -33,8 +24,8 @@ def index(current_foodtruck):
         place_order(request.form)
 
     # Number of new messages
-    client = Client(account_sid, auth_token)
-    unread_number = len(client.messages.list(to=twilio_number, date_sent=date.today()))
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+    unread_number = len(client.messages.list(to=TWILIO_PHONE_NUMBER, date_sent=date.today()))
 
     # After 11h, disable order
     if datetime.today() > datetime.combine(date.today(), time(10, 55)):
@@ -77,7 +68,7 @@ def index(current_foodtruck):
                                          menus=menus)
 
 def place_order(form):
-    mongodb = MongoClient(mongodb_url)
+    mongodb = MongoClient(MONGODB_URL)
 
     # Create order
     order = { "user" : escape(session['username']), "date" : datetime.today() }

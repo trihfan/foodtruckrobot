@@ -18,7 +18,7 @@
 
             <!-- List of numbers -->
             {% for number in numbers %}
-                <a href="{{ url_for('conversation.conversation') }}/{{ number.number }}" class="list-group-item list-group-item-action border-0"/>
+                <a href="{{ url_for('conversations_pages.conversations') }}/{{ number.number }}" class="list-group-item list-group-item-action border-0"/>
                     <div class="row">
 
                         <!-- Avatar -->
@@ -46,7 +46,7 @@
         </div>
 
         <!-- Main part -->
-        <div class="col-12 col-md-8 col-lg-9"  style="max-height: 85vmin !important; overflow-x: hidden; overflow-y: hidden;">
+        <div class="col-12 col-md-8 col-lg-9" style="max-height: 85vmin !important; overflow-x: hidden; overflow-y: hidden;">
 
             <!-- Top -->
             <div class="row align-items-center border-bottom">
@@ -72,7 +72,7 @@
             </div>
 
             <!-- Messages -->
-            <div class="" style="max-height: 65vmin !important; overflow-x: hidden; overflow-y: auto;">
+            <div id="messages" style="max-height: 65vmin !important; overflow-x: hidden; overflow-y: auto;">
                 {% for message in messages %}
                     {% if message.date != "" %}
                         <div class="row my-2">
@@ -90,7 +90,7 @@
 
             <!-- Write new message -->
             <div class="py-3 px-4 border-top">
-                <form method="post" action="{{ url_for('conversation.conversation') }}/{{ numbers[0].number }}">
+                <form method="post" action="{{ url_for('conversations_pages.conversations') }}/{{ numbers[0].number }}">
                     <div class="input-group">
                         <input type="text" class="form-control" placeholder="Type your message" name=message>
                         <button type="submit" class="btn btn-primary">Send</button>
@@ -101,4 +101,8 @@
         </div>
     </div>
 </div>
+
+<script>
+    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+</script>
 {% endblock %}
