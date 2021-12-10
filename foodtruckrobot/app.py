@@ -2,7 +2,7 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
 from auth.azure_oauth import init_azure_oauth
 from send_sms import send_sms
-from flask import Flask, Response
+from flask import Flask
 import os
 import locale
 import db
@@ -31,7 +31,7 @@ app.register_blueprint(settings_pages)
 # Database
 db.init()
 
-# Oauth config
+# Auth config
 init_azure_oauth(app)
 
 # Sms sender task

@@ -15,17 +15,47 @@
                         </div>
                         <div class="form-floating">
                             <!-- Password -->
-                            <input type="text" class="form-control mb-3" id="passwordInput" name=password">
+                            <input type="password" class="form-control mb-3" id="passwordInput" name="password">
                             <label for="passwordInput">Password</label>
                         </div>
                         <button type="submit" class="btn btn-primary border-bottom col-8">Login</button>
                     </form>
 
                     <!-- Login using azure auth -->
-                    <a href="/login_azure" class="btn btn-outline-primary col-8"><i class="bi bi-microsoft"></i> Login with azure</a>
+                    <a href="/login_azure" class="btn btn-outline-primary col-8 mb-4"><i class="bi bi-microsoft"></i> Login with azure</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+{% if error is defined %}
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+            <div class="toast-header bg-danger text-white">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-1">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                        </div>
+                        <div class="col-9">
+                            <strong class="me-auto">Erreur</strong>
+                        </div>
+                        <div class="col-1 text-end">
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="toast-body">
+                {{ error }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var toast = new bootstrap.Toast($('#errorToast'))
+        toast.show()
+    </script>
+{% endif %}
 {% endblock %}

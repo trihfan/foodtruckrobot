@@ -1,6 +1,8 @@
 from flask import Blueprint, session, redirect, request, render_template, url_for
 from foodtruckrobot.auth.azure_oauth import _build_auth_code_flow, _load_cache, _save_cache, _build_msal_app
-from foodtruckrobot.app_config import AUTH_TYPE, AUTHORITY, SCOPE, REDIRECT_PATH, AuthType
+from foodtruckrobot.app_config import AUTH_TYPE, AUTHORITY, SCOPE, REDIRECT_PATH, AuthType, MONGODB_URL
+from foodtruckrobot.auth.default_auth import check_password, hash_password
+from pymongo import MongoClient
 
 login_pages = Blueprint('login_pages', __name__, template_folder='templates')
 
@@ -8,9 +10,24 @@ login_pages = Blueprint('login_pages', __name__, template_folder='templates')
 @login_pages.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        AUTH_TYPE = AuthType.INTERNAL
-        session['username'] = request.form['username']
-        return redirect(url_for("menus_pages.menus"))
+        if check_password(request.form['username'], request.form['password']):
+            AUTH_TYPE = AuthType.INTERNAL
+            session['username'] = request.form['username']
+            return redirect(url_for("menus_pages.menus"))
+        else:
+            return render_template('login.html', error="Nom d'utilisateur ou mot de passe incorrect")
+
+    return render_template('login.html')
+
+# Register page
+@login_pages.route('/register/<password>', methods=['GET', 'POST'])
+def register(password):
+    mongodb = MongoClient(MONGODB_URL)
+    users = mongodb.data.users
+    hashed_password = hash_password(password)
+    users.insert_one({"user": "test", "password": hashed_password})
+    return redirect(url_for("login_pages.login"))
+
     return render_template('login.html')
 
 # Logout page
@@ -52,5 +69,3 @@ def authorized():
         pass  # Simply ignore them
 
     return redirect(url_for("menus_pages.menus"))
-
-
