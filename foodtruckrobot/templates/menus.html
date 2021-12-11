@@ -22,6 +22,35 @@
   {% endfor %}
 </ol>
 
+<!-- Update total price function -->
+<script>
+  function updateTotalPrice(menu_index, category, loop_index)
+  {
+    var total = parseFloat($("#order-" + menu_index + "-price").val(), 10);
+    var category = 1;
+
+    while ($("#order-" + menu_index + "-" + category + "-1").length)
+    {
+      var item = 1;
+
+      while ($("#order-" + menu_index + "-" + category + "-" + item).length)
+      {
+        if ($("#order-" + menu_index + "-" + category + "-" + item).is(':checked'))
+        {
+          total += parseFloat($("#order-" + menu_index + "-" + category + "-" + item + "-price").text(), 10);
+          break;
+        }
+
+        item++;
+      }
+
+      category++;
+    }
+
+    $("#order-" + menu_index + "-total").text(total);
+  }
+</script>
+
 <!-- Submenu -->
 {% for menu in menus %}
   {% set menu_index = loop.index %}
@@ -53,22 +82,18 @@
 
               <!-- Categories -->
               {% for category, items in menu.subitems.items() %}
+                {% set category_index = loop.index %}
+
                 <div class="accordion-item">
-                  <h2 class="accordion-header" id="order-{{ menu_index }}-{{ loop.index + 1 }}-flush">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#order-{{ menu_index }}-{{ loop.index + 1 }}-flush-2" aria-expanded="false" aria-controls="order-{{ menu_index }}-{{ loop.index + 1 }}-flush-2">
+                  <h2 class="accordion-header" id="order-{{ menu_index }}-{{ loop.index }}-flush">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#order-{{ menu_index }}-{{ loop.index }}-flush-2" aria-expanded="false" aria-controls="order-{{ menu_index }}-{{ loop.index }}-flush-2">
                       {{ category }}
                     </button>
                   </h2>
 
                   <!-- None -->
-                  <div id="order-{{ menu_index }}-{{ loop.index + 1 }}-flush-2" class="accordion-collapse collapse" aria-labelledby="order-{{ menu_index }}-{{ loop.index + 1 }}-flush">
+                  <div id="order-{{ menu_index }}-{{ loop.index }}-flush-2" class="accordion-collapse collapse" aria-labelledby="order-{{ menu_index }}-{{ loop.index }}-flush">
                     <div class="accordion-body">
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="subitem-{{ category }}" id="order-{{ menu_index }}-{{ category }}-0" value='{ "category" : "{{ category }}", "name" : "None", "price" : 0 }' checked>
-                        <label class="form-check-label" for="order-{{ menu_index }}-{{ category }}-0">
-                          Non merci!
-                        </label>
-                      </div>
 
                       <!-- Category items -->
                       {% for item in items %}
@@ -77,22 +102,24 @@
 
                             <!-- Name + radio -->
                             <div class="col-3">
-                              <input class="form-check-input " type="radio" name="subitem-{{ category }}" id="order-{{ menu_index }}-{{ category }}-{{ loop.index }}" value='{ "category" : "{{ category }}", "name" : "{{ item.name }}", "price" : {{ item.price }} }'>
-                              <label class="form-check-label" for="order-{{ menu_index }}-{{ category }}-{{ loop.index }}">
+                              <input class="form-check-input " type="radio" name="subitem-{{ category_index }}" id="order-{{ menu_index }}-{{ category_index }}-{{ loop.index }}"
+                                     value='{ "category" : "{{ category }}", "name" : "{{ item.name }}", "price" : {{ item.price }} }'
+                                     onchange="updateTotalPrice('{{ menu_index }}', '{{ category_index }}', '{{ loop.index }}')" {% if loop.index == 1 %}checked="true"{% endif %}>
+                              <label class="form-check-label" for="order-{{ menu_index }}-{{ category_index }}-{{ loop.index }}">
                                 {{ item.name }}
                               </label>
                             </div>
 
                             <!-- Description -->
                             <div class="col-6">
-                              <label class="form-check-label text-muted" for="order-{{ menu_index }}-{{ category }}-{{ loop.index }}">
+                              <label class="form-check-label text-muted" for="order-{{ menu_index }}-{{ category_index }}-{{ loop.index }}">
                                 {{ item.description }}
                               </label>
                             </div>
 
                             <!-- Price -->
                             <div class="col-3 text-end">
-                              <span class="badge bg-secondary">{{ item.price }}€</span>
+                              <span id="order-{{ menu_index }}-{{ category_index }}-{{ loop.index }}-price" class="badge bg-secondary">{{ item.price }}€</span>
                             </div>
                           </div>
                         </div>
@@ -107,7 +134,7 @@
             <hr/>
 
             <!-- Total -->
-            <h5><div class="text-end"><span class="badge bg-secondary">Total: {{ menu.price }}€</span></div></h5>
+            <h5><div class="text-end"><span class="badge bg-secondary">Total: <span id="order-{{ menu_index }}-total">{{ menu.price }}</span>€</span></div></h5>
           </div>
 
           <!-- Buttons !-->

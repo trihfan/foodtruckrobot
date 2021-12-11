@@ -46,7 +46,7 @@ def menus(current_foodtruck):
     today_foodtrucks = []
     selected_foodtruck = 0
     counter = 0
-    for foodtruck in foodtrucks.find({ "day" : date.today().day, "enabled" : True }, { "name" : 1 }):
+    for foodtruck in foodtrucks.find({ "enabled" : True }, { "name" : 1 }):
         if foodtruck["name"] == current_foodtruck:
             selected_foodtruck = counter
         today_foodtrucks.append({ "name" : foodtruck["name"], "selected" : foodtruck["name"] == current_foodtruck })
@@ -59,6 +59,10 @@ def menus(current_foodtruck):
     menus = {}
     if selected_foodtruck < len(today_foodtrucks):
         menus = foodtrucks.find_one({ "name" : today_foodtrucks[selected_foodtruck]["name"] }, { "menus" : 1 })["menus"]
+
+    for menu in menus:
+        for subitem in menu["subitems"].values():
+            subitem.insert(0, { "name" : "Non merci!", "description" : "", "price" : 0});
 
     return render_template('menus.html', name=escape(session['username']),
                                          date=date.today().strftime("%A %d %B"),
